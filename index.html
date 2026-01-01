@@ -3,384 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST MODE // EGOIST PROTOCOL</title>
+    <title>OS: EGOIST // RPG</title>
     <style>
         :root {
             --bg: #050505;
-            --terminal-bg: #0a0a0a;
-            --text-main: #b0b0b0;
-            --neon-blue: #00f0ff; /* Blue Lock / Tech */
-            --neon-red: #ff003c; /* Emoanalysis / Danger */
-            --ghost-gray: #333;
-            --font-mono: 'Courier New', Courier, monospace;
+            --surface: #121212;
+            --surface-light: #1E1E1E;
+            --border: #333;
+            --text-main: #Eaeaea;
+            --text-mute: #888;
+            --accent: #007AFF; /* Apple Blue */
+            --rpg-gold: #FFD60A; /* For XP/Ranks */
+            --stat-int: #5E5CE6; /* Purple for Intellect */
+            --stat-art: #FF375F; /* Pink for Dance */
+            --stat-will: #30D158; /* Green for Discipline */
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
         }
+
+        * { box-sizing: border-box; user-select: none; }
 
         body {
             background-color: var(--bg);
             color: var(--text-main);
-            font-family: var(--font-mono);
+            font-family: var(--font);
             margin: 0;
             height: 100vh;
-            overflow: hidden;
             display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            grid-template-rows: 60px 1fr 80px;
-            gap: 1px;
+            grid-template-columns: 280px 1fr 300px; /* Sidebar | Main | Stats */
+            grid-template-rows: 60px 1fr;
+            overflow: hidden;
         }
 
-        /* UTILITIES */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: var(--ghost-gray); }
-        h1, h2, h3 { margin: 0; text-transform: uppercase; letter-spacing: 2px; }
-        button { cursor: pointer; font-family: var(--font-mono); transition: 0.2s; border: none; }
-        
-        /* HEADER */
+        /* --- HEADER --- */
         header {
             grid-column: 1 / -1;
-            border-bottom: 1px solid var(--ghost-gray);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
-            background: rgba(0,0,0,0.8);
+            padding: 0 25px;
+            background: rgba(18,18,18,0.8);
+            backdrop-filter: blur(10px);
         }
-        .user-status { font-size: 0.8rem; }
-        .level-badge { color: var(--neon-blue); font-weight: bold; }
+        .user-id { font-weight: 700; letter-spacing: 1px; font-size: 0.9rem; }
+        .level-badge { 
+            background: var(--surface-light); 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            border: 1px solid var(--border);
+            color: var(--rpg-gold);
+        }
 
-        /* SIDEBAR LEFT: DATA INJECTION & AMBIENCE */
+        /* --- LEFT SIDEBAR: CONSOLE --- */
         .sidebar-left {
-            border-right: 1px solid var(--ghost-gray);
+            border-right: 1px solid var(--border);
             padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-
-        /* DATA INPUT (The ChatGPT Link) */
-        .terminal-input {
+        .btn-ambient {
             width: 100%;
-            height: 100px;
-            background: #000;
-            border: 1px solid var(--ghost-gray);
-            color: var(--neon-blue);
-            font-size: 0.7rem;
-            padding: 10px;
-            resize: none;
-        }
-        .inject-btn {
-            width: 100%;
-            padding: 8px;
-            background: var(--ghost-gray);
-            color: white;
-            font-size: 0.7rem;
-        }
-        .inject-btn:hover { background: var(--neon-blue); color: black; }
-
-        /* AMBIENCE CONTROLS */
-        .ambience-controls button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 5px;
-            background: #111;
-            color: #555;
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-mute);
             text-align: left;
-            border-left: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
         }
-        .ambience-controls button.active {
-            color: var(--neon-blue);
-            border-left-color: var(--neon-blue);
-            background: #0f1a1c;
+        .btn-ambient:hover, .btn-ambient.active {
+            border-color: var(--accent);
+            color: var(--text-main);
+            background: var(--surface-light);
         }
-
-        /* MAIN: SCHEDULE (BLUE LOCK LIST) */
-        .main-stage {
+        .timer-box {
+            text-align: center;
+            background: var(--surface);
             padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .timer-display { font-size: 2.5rem; font-weight: 300; font-feature-settings: "tnum"; }
+        
+        /* --- CENTER: QUEST BOARD --- */
+        .main-stage {
+            padding: 30px;
             overflow-y: auto;
-            position: relative;
+        }
+        .section-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-mute);
+            margin-bottom: 15px;
         }
         
-        .task-card {
-            background: #0e0e0e;
-            border: 1px solid #222;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
+        /* BOSS CARD */
+        .boss-card {
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            position: relative;
         }
-        .task-card:hover { border-color: var(--neon-blue); }
-        .task-card.completed { border-color: var(--neon-red); opacity: 0.5; }
-        .task-time { color: var(--neon-blue); font-size: 0.8rem; margin-right: 15px; width: 60px;}
-        .task-desc { flex-grow: 1; }
-        .task-btn {
+        .boss-card.active { border-color: var(--rpg-gold); box-shadow: 0 0 15px rgba(255, 214, 10, 0.1); }
+        .boss-label { color: var(--rpg-gold); font-size: 0.7rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
+        .boss-input {
+            width: 100%;
             background: transparent;
-            border: 1px solid var(--ghost-gray);
-            color: var(--ghost-gray);
-            padding: 5px 15px;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 600;
+            outline: none;
         }
-        .task-btn:hover { border-color: var(--neon-red); color: var(--neon-red); }
-
-        /* SIDEBAR RIGHT: EMOANALYSIS & POMODORO */
-        .sidebar-right {
-            border-left: 1px solid var(--ghost-gray);
-            padding: 20px;
+        
+        /* QUEST LIST */
+        .quest-item {
             display: flex;
-            flex-direction: column;
-            gap: 30px;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: 0.2s;
         }
+        .quest-item:hover { border-color: var(--text-mute); }
+        .quest-info { display: flex; flex-direction: column; }
+        .quest-rank { font-size: 0.65rem; font-weight: bold; margin-bottom: 4px; }
+        .rank-s { color: var(--rpg-gold); }
+        .rank-a { color: var(--accent); }
+        .rank-b { color: var(--stat-will); }
+        
+        .xp-gain { font-size: 0.7rem; color: var(--text-mute); margin-left: 10px; }
 
-        /* POMODORO CIRCLE */
-        .pomo-container { text-align: center; }
-        .timer-display { font-size: 2.5rem; font-weight: bold; color: var(--text-main); }
-        .pomo-controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        .pomo-btn { background: #222; color: white; padding: 5px 10px; font-size: 0.8rem; }
-        .pomo-btn:hover { background: var(--neon-red); }
-
-        /* EGO STATS */
-        .xp-bar-container { width: 100%; height: 5px; background: #222; margin-top: 5px; }
-        .xp-bar-fill { height: 100%; background: var(--neon-blue); width: 0%; transition: 1s; }
-
-        /* QUOTE BOX */
-        .quote-box {
-            font-size: 0.7rem;
-            color: #666;
-            border-top: 1px solid #222;
-            padding-top: 10px;
-            font-style: italic;
+        .btn-complete {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
         }
+        .btn-complete:hover { background: var(--text-main); color: black; }
+
+        /* --- RIGHT SIDEBAR: STATS --- */
+        .sidebar-right {
+            border-left: 1px solid var(--border);
+            padding: 25px;
+            background: var(--surface);
+        }
+        
+        /* XP BAR */
+        .xp-container { margin-bottom: 30px; }
+        .xp-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
+        .progress-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; }
+        .progress-fill { height: 100%; background: var(--rpg-gold); width: 0%; border-radius: 3px; transition: 0.5s ease; }
+
+        /* STAT BARS */
+        .stat-box { margin-bottom: 20px; }
+        .stat-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
+        .stat-bar-bg { width: 100%; height: 4px; background: #333; border-radius: 2px; }
+        .stat-bar-fill { height: 100%; border-radius: 2px; width: 0%; transition: 0.5s; }
+
+        /* CMD MODAL */
+        #cmd-modal {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            justify-content: center; align-items: center;
+        }
+        .modal-box { width: 500px; background: #111; padding: 30px; border-radius: 12px; border: 1px solid var(--border); }
+        textarea { width: 100%; height: 100px; background: black; border: 1px solid #333; color: var(--accent); padding: 10px; }
 
     </style>
 </head>
 <body>
 
     <header>
-        <div>PROJECT: AYANOKOJI // <span style="color:var(--neon-red)">GHOST MODE</span></div>
-        <div class="user-status">
-            CLASS: <span id="class-rank">D</span> | 
-            EGO: <span id="ego-level" class="level-badge">LVL 1</span>
-        </div>
+        <div class="user-id">OS: EGOIST // <span style="color:var(--text-mute)">GATE 2026</span></div>
+        <div class="level-badge" id="level-display">LVL 1 • NOVICE</div>
     </header>
 
     <div class="sidebar-left">
-        <div>
-            <h2>// DATA INJECTION</h2>
-            <p style="font-size:0.7rem; color:#666; margin-bottom:5px;">Paste ChatGPT JSON here:</p>
-            <textarea id="json-input" class="terminal-input" placeholder='{"schedule": [{"time": "06:00", "task": "Wake Up"}]}'></textarea>
-            <button class="inject-btn" onclick="parseSchedule()">INITIALIZE SCHEDULE</button>
-        </div>
+        <div class="section-header">REALITY MARBLE</div>
+        <button class="btn-ambient" onclick="toggleAudio('rain')" id="btn-rain">♫ RAIN PROTOCOL</button>
+        <button class="btn-ambient" onclick="toggleAudio('space')" id="btn-space">♫ SPACE PROTOCOL</button>
+        <button class="btn-ambient" onclick="toggleAudio('silence')" id="btn-silence">Ø SILENCE</button>
 
-        <div class="ambience-controls">
-            <h2>// REALITY MARBLE</h2>
-            <button onclick="toggleAudio('rain')" id="btn-rain">Protocol: HEAVY RAIN</button>
-            <button onclick="toggleAudio('space')" id="btn-space">Protocol: DEEP SPACE</button>
-            <button onclick="toggleAudio('silence')" id="btn-silence">Protocol: SILENCE</button>
+        <div style="margin-top: auto;">
+            <div class="section-header">CHRONOS TIMER</div>
+            <div class="timer-box">
+                <div class="timer-display" id="timer">25:00</div>
+                <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+                    <button class="btn-complete" onclick="startTimer(25)">WORK</button>
+                    <button class="btn-complete" onclick="startTimer(5)">REST</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="main-stage" id="schedule-container">
-        <div style="text-align:center; padding-top:50px; color:#333;">
-            NO DATA.<br>AWAITING INJECTION.
+    <div class="main-stage">
+        
+        <div class="boss-card" id="boss-card">
+            <div class="boss-label">☠ MAIN BOSS RAID (TODAY'S GOAL)</div>
+            <input type="text" class="boss-input" id="boss-input" placeholder="Enter Goal..." onchange="saveData()">
+            <div style="text-align:right; margin-top:10px;">
+                <span class="xp-gain">+100 XP | +5 INT</span>
+                <button class="btn-complete" style="margin-left:10px; border-color:var(--rpg-gold); color:var(--rpg-gold);" onclick="completeBoss()">DEFEAT</button>
+            </div>
         </div>
+
+        <div class="section-header">ACTIVE QUESTS</div>
+        <div id="quest-list">
+            </div>
+
+        <button class="btn-ambient" style="text-align:center; margin-top:20px;" onclick="openModal()">+ INJECT GEMINI SCHEDULE (CMD+K)</button>
     </div>
 
     <div class="sidebar-right">
         
-        <div class="pomo-container">
-            <h2>// FOCUS TIMER</h2>
-            <div class="timer-display" id="timer">25:00</div>
-            <div class="pomo-controls">
-                <button class="pomo-btn" onclick="startPomo(25)">WORK</button>
-                <button class="pomo-btn" onclick="startPomo(5)">REST</button>
-                <button class="pomo-btn" onclick="resetPomo()">RESET</button>
+        <div class="xp-container">
+            <div class="xp-label">
+                <span>PROGRESS TO LVL <span id="next-lvl">2</span></span>
+                <span id="xp-text">0 / 500 XP</span>
             </div>
-            <p style="font-size:0.7rem; color:#555; margin-top:10px;">"A focused fool beats a distracted genius."</p>
+            <div class="progress-bg"><div class="progress-fill" id="xp-bar"></div></div>
         </div>
 
-        <div>
-            <h2>// EGO METRICS</h2>
-            <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
-                <span>XP GAINED</span>
-                <span id="xp-text">0 / 100</span>
+        <div class="section-header">ATTRIBUTE STATS</div>
+
+        <div class="stat-box">
+            <div class="stat-header">
+                <span>INT (GATE/AVIONICS)</span>
+                <span style="color:var(--stat-int)" id="stat-int-val">0</span>
             </div>
-            <div class="xp-bar-container">
-                <div class="xp-bar-fill" id="xp-bar"></div>
-            </div>
+            <div class="stat-bar-bg"><div class="stat-bar-fill" style="background:var(--stat-int)" id="bar-int"></div></div>
         </div>
 
-        <div class="quote-box" id="quote-display">
-            "The rival works when he craves stimulation. You must do the same."
+        <div class="stat-box">
+            <div class="stat-header">
+                <span>ART (DANCE)</span>
+                <span style="color:var(--stat-art)" id="stat-art-val">0</span>
+            </div>
+            <div class="stat-bar-bg"><div class="stat-bar-fill" style="background:var(--stat-art)" id="bar-art"></div></div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-header">
+                <span>WILL (DISCIPLINE)</span>
+                <span style="color:var(--stat-will)" id="stat-will-val">0</span>
+            </div>
+            <div class="stat-bar-bg"><div class="stat-bar-fill" style="background:var(--stat-will)" id="bar-will"></div></div>
         </div>
 
     </div>
 
+    <div id="cmd-modal">
+        <div class="modal-box">
+            <div class="section-header">SYSTEM OVERRIDE</div>
+            <p style="font-size:0.8rem; color:#666;">Paste JSON from Gemini:</p>
+            <textarea id="json-input" placeholder='{"boss":"...","quests":[{"task":"...","type":"int","rank":"s"}]}'></textarea>
+            <button class="btn-ambient" style="text-align:center; margin-top:10px; border-color:var(--accent); color:var(--accent);" onclick="injectJSON()">INITIALIZE</button>
+            <button class="btn-complete" style="width:100%; margin-top:5px; border:none;" onclick="closeModal()">CANCEL</button>
+        </div>
+    </div>
+
     <script>
-        // --- 1. AUDIO SYSTEM (Web Audio API Synthesizers) ---
-        let audioCtx;
-        let activeOscillators = [];
+        // --- 1. STATE & RPG ENGINE ---
+        let state = JSON.parse(localStorage.getItem('ego_rpg_state')) || {
+            xp: 0,
+            level: 1,
+            stats: { int: 0, art: 0, will: 0 },
+            boss: "",
+            quests: [
+                { task: "Solve 20 GATE Problems", type: "int", rank: "s", xp: 50, done: false },
+                { task: "Bharatanatyam Adavus", type: "art", rank: "a", xp: 30, done: false },
+                { task: "Deep Work Block", type: "will", rank: "b", xp: 20, done: false }
+            ]
+        };
 
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        const TITLES = ["NOVICE", "ASPIRANT", "OPERATOR", "ELITE", "ACE", "EGOIST"];
+        const LEVEL_CAP = 500; // XP per level (simplified)
 
-        function stopAudio() {
-            activeOscillators.forEach(node => {
-                try { node.stop(); node.disconnect(); } catch(e){}
+        function save() { localStorage.setItem('ego_rpg_state', JSON.stringify(state)); render(); }
+
+        function render() {
+            // Stats & XP
+            document.getElementById('level-display').innerText = `LVL ${state.level} • ${TITLES[Math.min(state.level-1, 5)]}`;
+            document.getElementById('next-lvl').innerText = state.level + 1;
+            document.getElementById('xp-text').innerText = `${state.xp} / ${LEVEL_CAP} XP`;
+            document.getElementById('xp-bar').style.width = `${(state.xp / LEVEL_CAP) * 100}%`;
+
+            // Attribute Bars (Cap at 100 for visual)
+            ['int', 'art', 'will'].forEach(type => {
+                document.getElementById(`stat-${type}-val`).innerText = state.stats[type];
+                document.getElementById(`bar-${type}`).style.width = `${Math.min(state.stats[type], 100)}%`;
             });
-            activeOscillators = [];
-            document.querySelectorAll('.ambience-controls button').forEach(b => b.classList.remove('active'));
-        }
 
-        function toggleAudio(type) {
-            initAudio();
-            stopAudio();
-            
-            if (type === 'silence') return;
+            // Boss
+            document.getElementById('boss-input').value = state.boss;
 
-            document.getElementById(`btn-${type}`).classList.add('active');
-            const bufferSize = 4096;
-
-            if (type === 'rain') {
-                // Pink Noise (Rain-like)
-                const pinkNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-                pinkNoise.onaudioprocess = function(e) {
-                    const output = e.outputBuffer.getChannelData(0);
-                    let b0, b1, b2, b3, b4, b5, b6;
-                    b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
-                    for (let i = 0; i < bufferSize; i++) {
-                        let white = Math.random() * 2 - 1;
-                        b0 = 0.99886 * b0 + white * 0.0555179;
-                        b1 = 0.99332 * b1 + white * 0.0750759;
-                        b2 = 0.96900 * b2 + white * 0.1538520;
-                        b3 = 0.86650 * b3 + white * 0.3104856;
-                        b4 = 0.55000 * b4 + white * 0.5329522;
-                        b5 = -0.7616 * b5 - white * 0.0168980;
-                        output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                        output[i] *= 0.11; // Volume
-                        b6 = white * 0.115926;
-                    }
-                };
-                pinkNoise.connect(audioCtx.destination);
-                activeOscillators.push(pinkNoise);
-            } 
-            else if (type === 'space') {
-                // Brown Noise (Deep Rumble)
-                const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-                brownNoise.onaudioprocess = function(e) {
-                    const output = e.outputBuffer.getChannelData(0);
-                    let lastOut = 0;
-                    for (let i = 0; i < bufferSize; i++) {
-                        let white = Math.random() * 2 - 1;
-                        output[i] = (lastOut + (0.02 * white)) / 1.02;
-                        lastOut = output[i];
-                        output[i] *= 0.5; // Volume
-                    }
-                };
-                brownNoise.connect(audioCtx.destination);
-                activeOscillators.push(brownNoise);
-            }
-        }
-
-        // --- 2. SCHEDULE & PARSER ---
-        let xp = 0;
-        let totalTasks = 0;
-
-        function parseSchedule() {
-            const input = document.getElementById('json-input').value;
-            const container = document.getElementById('schedule-container');
-            
-            try {
-                const data = JSON.parse(input);
-                container.innerHTML = ''; // Clear current
-                xp = 0; // Reset XP
-                updateXP();
-
-                if(data.quote) document.getElementById('quote-display').innerText = `"${data.quote}"`;
-
-                totalTasks = data.schedule.length;
+            // Quests
+            const list = document.getElementById('quest-list');
+            list.innerHTML = '';
+            state.quests.forEach((q, i) => {
+                if(q.done) return; // Hide completed
                 
-                data.schedule.forEach((item, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'task-card';
-                    div.innerHTML = `
-                        <div style="display:flex; align-items:center; width:100%;">
-                            <span class="task-time">${item.time}</span>
-                            <span class="task-desc">${item.task}</span>
-                        </div>
-                        <button class="task-btn" onclick="completeTask(this)">DEVOUR</button>
-                    `;
-                    container.appendChild(div);
-                });
+                let rankColor = q.rank === 's' ? 'var(--rpg-gold)' : (q.rank === 'a' ? 'var(--accent)' : 'var(--text-mute)');
+                
+                const div = document.createElement('div');
+                div.className = 'quest-item';
+                div.innerHTML = `
+                    <div class="quest-info">
+                        <span class="quest-rank" style="color:${rankColor}">RANK ${q.rank.toUpperCase()} // ${q.type.toUpperCase()} TYPE</span>
+                        <span>${q.task}</span>
+                    </div>
+                    <div>
+                        <span class="xp-gain">+${q.xp} XP</span>
+                        <button class="btn-complete" onclick="completeQuest(${i})">CLR</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
 
-            } catch (e) {
-                alert("ERROR: INVALID DATA FORMAT. CHECK CHATGPT OUTPUT.");
+        // --- 2. ACTIONS ---
+        function completeQuest(index) {
+            const q = state.quests[index];
+            state.xp += q.xp;
+            state.stats[q.type] += (q.xp / 10); // Stat gain is 10% of XP
+            checkLevelUp();
+            q.done = true; // Remove from list
+            save();
+        }
+
+        function completeBoss() {
+            if(!state.boss) return;
+            if(confirm("CONFIRM BOSS DEFEATED?")) {
+                state.xp += 100;
+                state.stats.int += 5;
+                state.stats.will += 5;
+                state.boss = ""; // Reset
+                checkLevelUp();
+                save();
+                alert("BOSS DEFEATED. SIGNIFICANT XP GAINED.");
             }
         }
 
-        function completeTask(btn) {
-            const card = btn.parentElement;
-            if (card.classList.contains('completed')) return;
-
-            card.classList.add('completed');
-            btn.innerText = "ELIMINATED";
-            
-            // Gain XP
-            xp += (100 / totalTasks);
-            updateXP();
+        function checkLevelUp() {
+            if (state.xp >= LEVEL_CAP) {
+                state.level++;
+                state.xp = state.xp - LEVEL_CAP;
+                alert(`LEVEL UP! YOU ARE NOW LVL ${state.level}`);
+            }
         }
 
-        function updateXP() {
-            // Cap at 100
-            let finalXp = Math.min(xp, 100);
-            document.getElementById('xp-text').innerText = `${Math.floor(finalXp)} / 100`;
-            document.getElementById('xp-bar').style.width = `${finalXp}%`;
-            
-            // Level Logic
-            const rankEl = document.getElementById('class-rank');
-            const levelEl = document.getElementById('ego-level');
-            
-            if (finalXp < 25) { rankEl.innerText = "D"; levelEl.innerText = "LVL 1 (NPC)"; }
-            else if (finalXp < 50) { rankEl.innerText = "C"; levelEl.innerText = "LVL 10 (AWAKENING)"; }
-            else if (finalXp < 75) { rankEl.innerText = "B"; levelEl.innerText = "LVL 50 (RIVAL)"; }
-            else if (finalXp >= 100) { rankEl.innerText = "A"; levelEl.innerText = "LVL 99 (MASTERPIECE)"; rankEl.style.color = "var(--neon-blue)"; }
+        function saveData() {
+            state.boss = document.getElementById('boss-input').value;
+            save();
         }
 
-        // --- 3. POMODORO TIMER ---
-        let timerInterval;
-        let timeLeft = 25 * 60;
-
-        function updateTimerDisplay() {
-            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timer').innerText = `${m}:${s}`;
-            document.title = `${m}:${s} // FOCUS`;
-        }
-
-        function startPomo(minutes) {
-            clearInterval(timerInterval);
-            timeLeft = minutes * 60;
-            updateTimerDisplay();
+        // --- 3. AUDIO SYSTEM (Web Audio API) ---
+        let audioCtx, osc;
+        function toggleAudio(type) {
+            if(osc) { osc.stop(); osc = null; }
+            document.querySelectorAll('.btn-ambient').forEach(b => b.classList.remove('active'));
+            if(type === 'silence') return;
             
-            timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateTimerDisplay();
-                } else {
-                    clearInterval(timerInterval);
-                    toggleAudio('silence'); // Stop noise when done
-                    alert("INTERVAL COMPLETE. RECALIBRATE.");
+            document.getElementById(`btn-${type}`).classList.add('active');
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Simple Noise Gen
+            const bufferSize = 4096;
+            const node = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+            node.onaudioprocess = (e) => {
+                const out = e.outputBuffer.getChannelData(0);
+                for(let i=0; i<bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    if(type === 'space') out[i] = (Math.random() * 2 - 1) * 0.05; // Brownish
+                    else out[i] = (Math.random() * 2 - 1) * 0.1; // Pinkish
                 }
+            };
+            node.connect(audioCtx.destination);
+            osc = { stop: () => { node.disconnect(); audioCtx.close(); }};
+        }
+
+        // --- 4. TIMER ---
+        let timerInt, timeLeft;
+        function startTimer(min) {
+            clearInterval(timerInt);
+            timeLeft = min * 60;
+            updateTimer();
+            timerInt = setInterval(() => {
+                if(timeLeft > 0) { timeLeft--; updateTimer(); }
+                else { clearInterval(timerInt); alert("TIMER COMPLETE"); }
             }, 1000);
         }
-
-        function resetPomo() {
-            clearInterval(timerInterval);
-            timeLeft = 0;
-            updateTimerDisplay();
-            document.title = "GHOST MODE";
+        function updateTimer() {
+            const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+            const s = (timeLeft%60).toString().padStart(2,'0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
         }
 
+        // --- 5. GEMINI INJECTION ---
+        function openModal() { document.getElementById('cmd-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('cmd-modal').style.display = 'none'; }
+        
+        document.addEventListener('keydown', e => { if((e.metaKey || e.ctrlKey) && e.key === 'k') openModal(); });
+
+        function injectJSON() {
+            try {
+                const data = JSON.parse(document.getElementById('json-input').value);
+                if(data.boss) state.boss = data.boss;
+                if(data.quests) state.quests = data.quests.map(q => ({
+                    ...q, 
+                    xp: q.rank === 's' ? 100 : (q.rank === 'a' ? 50 : 25),
+                    done: false 
+                }));
+                save(); closeModal();
+            } catch(e) { alert("INVALID JSON"); }
+        }
+
+        render();
     </script>
 </body>
 </html>

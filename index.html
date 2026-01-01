@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OS: EGOIST // RPG</title>
+    <title>OS: EGOIST // TEMPORAL</title>
     <style>
         :root {
             --bg: #050505;
-            --surface: #121212;
-            --surface-light: #1E1E1E;
+            --surface: #0f0f0f;
+            --surface-hover: #1a1a1a;
             --border: #333;
             --text-main: #Eaeaea;
-            --text-mute: #888;
-            --accent: #007AFF; /* Apple Blue */
-            --rpg-gold: #FFD60A; /* For XP/Ranks */
-            --stat-int: #5E5CE6; /* Purple for Intellect */
-            --stat-art: #FF375F; /* Pink for Dance */
-            --stat-will: #30D158; /* Green for Discipline */
-            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            --text-mute: #666;
+            --accent: #0A84FF; 
+            --gold: #FFD60A;
+            --danger: #FF375F;
+            --success: #30D158;
+            --font: 'SF Mono', 'Courier New', monospace;
         }
 
-        * { box-sizing: border-box; user-select: none; }
+        * { box-sizing: border-box; outline: none; }
 
         body {
             background-color: var(--bg);
@@ -29,7 +28,7 @@
             margin: 0;
             height: 100vh;
             display: grid;
-            grid-template-columns: 280px 1fr 300px; /* Sidebar | Main | Stats */
+            grid-template-columns: 300px 1fr 320px;
             grid-template-rows: 60px 1fr;
             overflow: hidden;
         }
@@ -41,329 +40,281 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 25px;
-            background: rgba(18,18,18,0.8);
-            backdrop-filter: blur(10px);
+            padding: 0 20px;
+            background: rgba(5,5,5,0.9);
+            z-index: 10;
         }
-        .user-id { font-weight: 700; letter-spacing: 1px; font-size: 0.9rem; }
-        .level-badge { 
-            background: var(--surface-light); 
-            padding: 5px 12px; 
-            border-radius: 20px; 
-            font-size: 0.8rem; 
-            border: 1px solid var(--border);
-            color: var(--rpg-gold);
-        }
+        .logo { font-weight: 800; letter-spacing: 2px; color: var(--text-main); }
+        .date-display { color: var(--text-mute); font-size: 0.9rem; }
 
-        /* --- LEFT SIDEBAR: CONSOLE --- */
+        /* --- SIDEBAR LEFT: CONTROLS --- */
         .sidebar-left {
             border-right: 1px solid var(--border);
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
+            background: var(--surface);
         }
+
+        .control-group h3 {
+            font-size: 0.7rem; color: var(--text-mute); margin-bottom: 10px; letter-spacing: 1px;
+        }
+
         .btn-ambient {
-            width: 100%;
-            padding: 12px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-mute);
-            text-align: left;
+            width: 100%; padding: 10px; background: #000; border: 1px solid var(--border);
+            color: var(--text-mute); text-align: left; margin-bottom: 5px; cursor: pointer;
+            transition: 0.2s; font-size: 0.8rem;
+        }
+        .btn-ambient:hover, .btn-ambient.active { border-color: var(--accent); color: var(--accent); }
+
+        /* CUSTOM TIMER */
+        .timer-wrapper {
+            background: #000; border: 1px solid var(--border); padding: 20px; text-align: center;
             border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.85rem;
         }
-        .btn-ambient:hover, .btn-ambient.active {
-            border-color: var(--accent);
-            color: var(--text-main);
-            background: var(--surface-light);
+        .timer-display { font-size: 2.5rem; font-weight: 300; display: block; margin-bottom: 10px; }
+        .timer-input {
+            width: 60px; background: #222; border: none; color: white; padding: 5px;
+            text-align: center; font-family: var(--font); margin-right: 5px;
         }
-        .timer-box {
-            text-align: center;
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+        .btn-action {
+            background: var(--text-main); color: black; border: none; padding: 6px 15px;
+            cursor: pointer; font-weight: bold;
         }
-        .timer-display { font-size: 2.5rem; font-weight: 300; font-feature-settings: "tnum"; }
-        
-        /* --- CENTER: QUEST BOARD --- */
+
+        /* --- CENTER: CALENDAR & TASKS --- */
         .main-stage {
-            padding: 30px;
+            padding: 0;
             overflow-y: auto;
-        }
-        .section-header {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-mute);
-            margin-bottom: 15px;
-        }
-        
-        /* BOSS CARD */
-        .boss-card {
-            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
-            border: 1px solid var(--border);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            position: relative;
-        }
-        .boss-card.active { border-color: var(--rpg-gold); box-shadow: 0 0 15px rgba(255, 214, 10, 0.1); }
-        .boss-label { color: var(--rpg-gold); font-size: 0.7rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
-        .boss-input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1.4rem;
-            font-weight: 600;
-            outline: none;
-        }
-        
-        /* QUEST LIST */
-        .quest-item {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            flex-direction: column;
+        }
+
+        /* BOSS BANNER */
+        .boss-banner {
+            padding: 30px; border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(255,214,10,0.05), transparent);
+        }
+        .boss-title { color: var(--gold); font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 10px; }
+        .boss-input {
+            width: 100%; background: transparent; border: none; color: white;
+            font-size: 1.5rem; font-weight: bold; font-family: var(--font);
+        }
+
+        /* TIMELINE VIEW */
+        .timeline-container { padding: 30px; }
+        .timeline-item {
+            display: flex; gap: 20px; margin-bottom: 20px; position: relative;
+        }
+        .timeline-item::before {
+            content: ''; position: absolute; left: 60px; top: 0; bottom: -20px;
+            width: 1px; background: var(--border); z-index: 0;
+        }
+        .timeline-time {
+            width: 60px; font-size: 0.8rem; color: var(--text-mute); text-align: right;
+            padding-top: 5px; background: var(--bg); z-index: 1;
+        }
+        .timeline-card {
+            flex: 1; background: var(--surface); border: 1px solid var(--border);
+            padding: 15px; border-radius: 6px; position: relative; cursor: pointer;
             transition: 0.2s;
         }
-        .quest-item:hover { border-color: var(--text-mute); }
-        .quest-info { display: flex; flex-direction: column; }
-        .quest-rank { font-size: 0.65rem; font-weight: bold; margin-bottom: 4px; }
-        .rank-s { color: var(--rpg-gold); }
-        .rank-a { color: var(--accent); }
-        .rank-b { color: var(--stat-will); }
+        .timeline-card:hover { border-color: var(--accent); transform: translateX(5px); }
+        .timeline-card.done { opacity: 0.4; border-color: var(--success); text-decoration: line-through; }
         
-        .xp-gain { font-size: 0.7rem; color: var(--text-mute); margin-left: 10px; }
-
-        .btn-complete {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 5px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .technique-badge {
+            font-size: 0.7rem; background: rgba(10, 132, 255, 0.1); color: var(--accent);
+            padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(10, 132, 255, 0.3);
         }
-        .btn-complete:hover { background: var(--text-main); color: black; }
+        .card-title { font-size: 1rem; font-weight: 600; }
+        .card-stats { font-size: 0.75rem; color: var(--text-mute); margin-top: 5px; }
 
-        /* --- RIGHT SIDEBAR: STATS --- */
+        /* --- SIDEBAR RIGHT: STATS --- */
         .sidebar-right {
             border-left: 1px solid var(--border);
             padding: 25px;
             background: var(--surface);
+            overflow-y: auto;
         }
-        
-        /* XP BAR */
-        .xp-container { margin-bottom: 30px; }
-        .xp-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
-        .progress-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; }
-        .progress-fill { height: 100%; background: var(--rpg-gold); width: 0%; border-radius: 3px; transition: 0.5s ease; }
+        .stat-row { margin-bottom: 25px; }
+        .stat-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; }
+        .bar-bg { width: 100%; height: 4px; background: #222; }
+        .bar-fill { height: 100%; width: 0%; transition: 1s cubic-bezier(0.22, 1, 0.36, 1); }
 
-        /* STAT BARS */
-        .stat-box { margin-bottom: 20px; }
-        .stat-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
-        .stat-bar-bg { width: 100%; height: 4px; background: #333; border-radius: 2px; }
-        .stat-bar-fill { height: 100%; border-radius: 2px; width: 0%; transition: 0.5s; }
-
-        /* CMD MODAL */
+        /* MODAL */
         #cmd-modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.85); z-index: 100;
-            justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center;
         }
-        .modal-box { width: 500px; background: #111; padding: 30px; border-radius: 12px; border: 1px solid var(--border); }
-        textarea { width: 100%; height: 100px; background: black; border: 1px solid #333; color: var(--accent); padding: 10px; }
+        .cmd-box { width: 600px; background: #111; padding: 30px; border: 1px solid var(--border); }
+        .json-input { 
+            width: 100%; height: 200px; background: black; color: var(--accent); 
+            border: 1px solid #333; padding: 15px; font-family: monospace; font-size: 0.8rem;
+        }
 
     </style>
 </head>
 <body>
 
     <header>
-        <div class="user-id">OS: EGOIST // <span style="color:var(--text-mute)">GATE 2026</span></div>
-        <div class="level-badge" id="level-display">LVL 1 • NOVICE</div>
+        <div class="logo">OS: EGOIST // V3.0</div>
+        <div class="date-display" id="full-date">LOADING...</div>
     </header>
 
     <div class="sidebar-left">
-        <div class="section-header">REALITY MARBLE</div>
-        <button class="btn-ambient" onclick="toggleAudio('rain')" id="btn-rain">♫ RAIN PROTOCOL</button>
-        <button class="btn-ambient" onclick="toggleAudio('space')" id="btn-space">♫ SPACE PROTOCOL</button>
-        <button class="btn-ambient" onclick="toggleAudio('silence')" id="btn-silence">Ø SILENCE</button>
+        <div class="control-group">
+            <h3>AUDIO ENGINE</h3>
+            <button class="btn-ambient" onclick="toggleAudio('rain')" id="btn-rain">/// HEAVY RAIN</button>
+            <button class="btn-ambient" onclick="toggleAudio('space')" id="btn-space">/// DEEP SPACE</button>
+            <button class="btn-ambient" onclick="toggleAudio('silence')" id="btn-silence">/// SILENCE</button>
+        </div>
 
-        <div style="margin-top: auto;">
-            <div class="section-header">CHRONOS TIMER</div>
-            <div class="timer-box">
-                <div class="timer-display" id="timer">25:00</div>
-                <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
-                    <button class="btn-complete" onclick="startTimer(25)">WORK</button>
-                    <button class="btn-complete" onclick="startTimer(5)">REST</button>
+        <div class="control-group">
+            <h3>MANUAL TIMER</h3>
+            <div class="timer-wrapper">
+                <span class="timer-display" id="timer">00:00</span>
+                <div style="display:flex; justify-content:center; gap:5px;">
+                    <input type="number" id="custom-min" class="timer-input" placeholder="Min" value="25">
+                    <button class="btn-action" onclick="startCustomTimer()">RUN</button>
+                    <button class="btn-action" style="background:#333; color:white;" onclick="resetTimer()">X</button>
                 </div>
             </div>
+        </div>
+
+        <div style="margin-top:auto">
+            <button class="btn-ambient" style="text-align:center; border-color: var(--gold); color: var(--gold);" onclick="openModal()">CMD + K (INJECT PLAN)</button>
         </div>
     </div>
 
     <div class="main-stage">
-        
-        <div class="boss-card" id="boss-card">
-            <div class="boss-label">☠ MAIN BOSS RAID (TODAY'S GOAL)</div>
-            <input type="text" class="boss-input" id="boss-input" placeholder="Enter Goal..." onchange="saveData()">
-            <div style="text-align:right; margin-top:10px;">
-                <span class="xp-gain">+100 XP | +5 INT</span>
-                <button class="btn-complete" style="margin-left:10px; border-color:var(--rpg-gold); color:var(--rpg-gold);" onclick="completeBoss()">DEFEAT</button>
-            </div>
+        <div class="boss-banner">
+            <div class="boss-title">DAILY BOSS RAID</div>
+            <input type="text" class="boss-input" id="boss-input" placeholder="AWAITING ORDERS..." onchange="saveData()">
         </div>
 
-        <div class="section-header">ACTIVE QUESTS</div>
-        <div id="quest-list">
-            </div>
-
-        <button class="btn-ambient" style="text-align:center; margin-top:20px;" onclick="openModal()">+ INJECT GEMINI SCHEDULE (CMD+K)</button>
+        <div class="timeline-container" id="timeline">
+            <div style="text-align:center; color: #444; margin-top: 50px;">NO MISSION DATA.<br>PRESS CMD+K TO INJECT SCHEDULE.</div>
+        </div>
     </div>
 
     <div class="sidebar-right">
-        
-        <div class="xp-container">
-            <div class="xp-label">
-                <span>PROGRESS TO LVL <span id="next-lvl">2</span></span>
-                <span id="xp-text">0 / 500 XP</span>
-            </div>
-            <div class="progress-bg"><div class="progress-fill" id="xp-bar"></div></div>
+        <div class="stat-row">
+            <div class="stat-label"><span>PLAYER RANK</span><span style="color:var(--gold)" id="rank-txt">NOVICE</span></div>
+            <div class="stat-label" style="font-size:0.7rem; color:#666;">XP PROGRESS</div>
+            <div class="bar-bg"><div class="bar-fill" style="background:var(--gold)" id="xp-bar"></div></div>
         </div>
 
-        <div class="section-header">ATTRIBUTE STATS</div>
-
-        <div class="stat-box">
-            <div class="stat-header">
-                <span>INT (GATE/AVIONICS)</span>
-                <span style="color:var(--stat-int)" id="stat-int-val">0</span>
-            </div>
-            <div class="stat-bar-bg"><div class="stat-bar-fill" style="background:var(--stat-int)" id="bar-int"></div></div>
+        <div class="stat-row">
+            <div class="stat-label"><span>INTELLECT (GATE)</span><span id="stat-int">0</span></div>
+            <div class="bar-bg"><div class="bar-fill" style="background:var(--accent)" id="bar-int"></div></div>
         </div>
 
-        <div class="stat-box">
-            <div class="stat-header">
-                <span>ART (DANCE)</span>
-                <span style="color:var(--stat-art)" id="stat-art-val">0</span>
-            </div>
-            <div class="stat-bar-bg"><div class="stat-bar-fill" style="background:var(--stat-art)" id="bar-art"></div></div>
+        <div class="stat-row">
+            <div class="stat-label"><span>ARTISTRY (DANCE)</span><span id="stat-art">0</span></div>
+            <div class="bar-bg"><div class="bar-fill" style="background:var(--danger)" id="bar-art"></div></div>
         </div>
 
-        <div class="stat-box">
-            <div class="stat-header">
-                <span>WILL (DISCIPLINE)</span>
-                <span style="color:var(--stat-will)" id="stat-will-val">0</span>
-            </div>
-            <div class="stat-bar-bg"><div class="stat-bar-fill" style="background:var(--stat-will)" id="bar-will"></div></div>
+        <div class="stat-row">
+            <div class="stat-label"><span>WILL (DISCIPLINE)</span><span id="stat-will">0</span></div>
+            <div class="bar-bg"><div class="bar-fill" style="background:var(--success)" id="bar-will"></div></div>
         </div>
-
     </div>
 
     <div id="cmd-modal">
-        <div class="modal-box">
-            <div class="section-header">SYSTEM OVERRIDE</div>
-            <p style="font-size:0.8rem; color:#666;">Paste JSON from Gemini:</p>
-            <textarea id="json-input" placeholder='{"boss":"...","quests":[{"task":"...","type":"int","rank":"s"}]}'></textarea>
-            <button class="btn-ambient" style="text-align:center; margin-top:10px; border-color:var(--accent); color:var(--accent);" onclick="injectJSON()">INITIALIZE</button>
-            <button class="btn-complete" style="width:100%; margin-top:5px; border:none;" onclick="closeModal()">CANCEL</button>
+        <div class="cmd-box">
+            <h3 style="margin-top:0">TEMPORAL INJECTION</h3>
+            <p style="color:#666; font-size:0.8rem;">Paste Gemini JSON output here:</p>
+            <textarea id="json-inject" class="json-input"></textarea>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-action" onclick="injectSchedule()">INITIALIZE SCHEDULE</button>
+                <button class="btn-action" style="background:#333; color:white;" onclick="closeModal()">CANCEL</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. STATE & RPG ENGINE ---
-        let state = JSON.parse(localStorage.getItem('ego_rpg_state')) || {
+        // --- 1. CORE STATE MANAGEMENT ---
+        const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        document.getElementById('full-date').innerText = today;
+
+        let state = JSON.parse(localStorage.getItem('ego_v3_state')) || {
             xp: 0,
             level: 1,
             stats: { int: 0, art: 0, will: 0 },
             boss: "",
-            quests: [
-                { task: "Solve 20 GATE Problems", type: "int", rank: "s", xp: 50, done: false },
-                { task: "Bharatanatyam Adavus", type: "art", rank: "a", xp: 30, done: false },
-                { task: "Deep Work Block", type: "will", rank: "b", xp: 20, done: false }
-            ]
+            schedule: []
         };
 
-        const TITLES = ["NOVICE", "ASPIRANT", "OPERATOR", "ELITE", "ACE", "EGOIST"];
-        const LEVEL_CAP = 500; // XP per level (simplified)
-
-        function save() { localStorage.setItem('ego_rpg_state', JSON.stringify(state)); render(); }
+        function save() {
+            localStorage.setItem('ego_v3_state', JSON.stringify(state));
+            render();
+        }
 
         function render() {
-            // Stats & XP
-            document.getElementById('level-display').innerText = `LVL ${state.level} • ${TITLES[Math.min(state.level-1, 5)]}`;
-            document.getElementById('next-lvl').innerText = state.level + 1;
-            document.getElementById('xp-text').innerText = `${state.xp} / ${LEVEL_CAP} XP`;
-            document.getElementById('xp-bar').style.width = `${(state.xp / LEVEL_CAP) * 100}%`;
-
-            // Attribute Bars (Cap at 100 for visual)
-            ['int', 'art', 'will'].forEach(type => {
-                document.getElementById(`stat-${type}-val`).innerText = state.stats[type];
-                document.getElementById(`bar-${type}`).style.width = `${Math.min(state.stats[type], 100)}%`;
+            // Stats
+            document.getElementById('rank-txt').innerText = `LVL ${state.level}`;
+            document.getElementById('xp-bar').style.width = `${(state.xp % 500) / 5}%`;
+            
+            ['int', 'art', 'will'].forEach(s => {
+                document.getElementById(`stat-${s}`).innerText = state.stats[s];
+                document.getElementById(`bar-${s}`).style.width = `${Math.min(state.stats[s], 100)}%`;
             });
 
             // Boss
             document.getElementById('boss-input').value = state.boss;
 
-            // Quests
-            const list = document.getElementById('quest-list');
-            list.innerHTML = '';
-            state.quests.forEach((q, i) => {
-                if(q.done) return; // Hide completed
+            // Timeline Schedule
+            const timeline = document.getElementById('timeline');
+            if(state.schedule.length > 0) timeline.innerHTML = '';
+            
+            state.schedule.forEach((block, index) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
                 
-                let rankColor = q.rank === 's' ? 'var(--rpg-gold)' : (q.rank === 'a' ? 'var(--accent)' : 'var(--text-mute)');
-                
-                const div = document.createElement('div');
-                div.className = 'quest-item';
-                div.innerHTML = `
-                    <div class="quest-info">
-                        <span class="quest-rank" style="color:${rankColor}">RANK ${q.rank.toUpperCase()} // ${q.type.toUpperCase()} TYPE</span>
-                        <span>${q.task}</span>
-                    </div>
-                    <div>
-                        <span class="xp-gain">+${q.xp} XP</span>
-                        <button class="btn-complete" onclick="completeQuest(${i})">CLR</button>
+                // Color coding
+                let color = 'var(--text-mute)';
+                if(block.type === 'int') color = 'var(--accent)';
+                if(block.type === 'art') color = 'var(--danger)';
+                if(block.type === 'will') color = 'var(--success)';
+
+                item.innerHTML = `
+                    <div class="timeline-time">${block.time}</div>
+                    <div class="timeline-card ${block.done ? 'done' : ''}" onclick="toggleBlock(${index})">
+                        <div class="card-header">
+                            <span class="technique-badge" style="color:${color}; border-color:${color}">${block.technique}</span>
+                            <span style="font-size:0.7rem; color:#666;">XP: ${block.xp}</span>
+                        </div>
+                        <div class="card-title">${block.task}</div>
+                        <div class="card-stats">TYPE: ${block.type.toUpperCase()}</div>
                     </div>
                 `;
-                list.appendChild(div);
+                timeline.appendChild(item);
             });
         }
 
-        // --- 2. ACTIONS ---
-        function completeQuest(index) {
-            const q = state.quests[index];
-            state.xp += q.xp;
-            state.stats[q.type] += (q.xp / 10); // Stat gain is 10% of XP
-            checkLevelUp();
-            q.done = true; // Remove from list
+        // --- 2. LOGIC & ACTIONS ---
+        function toggleBlock(index) {
+            const block = state.schedule[index];
+            if(!block.done) {
+                // Complete
+                block.done = true;
+                state.xp += block.xp;
+                state.stats[block.type] += (block.xp / 5);
+                
+                // Check level up
+                if(state.xp > state.level * 500) {
+                    state.level++;
+                    alert("LEVEL UP. EGO EXPANDED.");
+                }
+            } else {
+                // Undo
+                block.done = false;
+                state.xp -= block.xp;
+                state.stats[block.type] -= (block.xp / 5);
+            }
             save();
-        }
-
-        function completeBoss() {
-            if(!state.boss) return;
-            if(confirm("CONFIRM BOSS DEFEATED?")) {
-                state.xp += 100;
-                state.stats.int += 5;
-                state.stats.will += 5;
-                state.boss = ""; // Reset
-                checkLevelUp();
-                save();
-                alert("BOSS DEFEATED. SIGNIFICANT XP GAINED.");
-            }
-        }
-
-        function checkLevelUp() {
-            if (state.xp >= LEVEL_CAP) {
-                state.level++;
-                state.xp = state.xp - LEVEL_CAP;
-                alert(`LEVEL UP! YOU ARE NOW LVL ${state.level}`);
-            }
         }
 
         function saveData() {
@@ -371,7 +322,41 @@
             save();
         }
 
-        // --- 3. AUDIO SYSTEM (Web Audio API) ---
+        // --- 3. JSON INJECTION ---
+        function openModal() { document.getElementById('cmd-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('cmd-modal').style.display = 'none'; }
+        
+        // Keyboard Shortcut
+        document.addEventListener('keydown', (e) => {
+            if((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault(); openModal();
+            }
+        });
+
+        function injectSchedule() {
+            try {
+                const raw = document.getElementById('json-inject').value;
+                const data = JSON.parse(raw);
+                
+                // Reset schedule
+                state.boss = data.boss_goal;
+                state.schedule = data.timeline.map(item => ({
+                    time: item.time,
+                    task: item.task,
+                    technique: item.technique, // e.g., "50/10 Pomodoro"
+                    type: item.type, // "int", "art", "will"
+                    xp: item.xp,
+                    done: false
+                }));
+                
+                save();
+                closeModal();
+            } catch(e) {
+                alert("DATA CORRUPT. CHECK JSON FORMAT.");
+            }
+        }
+
+        // --- 4. AUDIO ENGINE ---
         let audioCtx, osc;
         function toggleAudio(type) {
             if(osc) { osc.stop(); osc = null; }
@@ -380,56 +365,41 @@
             
             document.getElementById(`btn-${type}`).classList.add('active');
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Simple Noise Gen
             const bufferSize = 4096;
             const node = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+            
             node.onaudioprocess = (e) => {
                 const out = e.outputBuffer.getChannelData(0);
                 for(let i=0; i<bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    if(type === 'space') out[i] = (Math.random() * 2 - 1) * 0.05; // Brownish
-                    else out[i] = (Math.random() * 2 - 1) * 0.1; // Pinkish
+                    const r = Math.random() * 2 - 1;
+                    out[i] = type === 'space' ? r * 0.05 : r * 0.1; // Brown vs Pink
                 }
             };
             node.connect(audioCtx.destination);
             osc = { stop: () => { node.disconnect(); audioCtx.close(); }};
         }
 
-        // --- 4. TIMER ---
-        let timerInt, timeLeft;
-        function startTimer(min) {
+        // --- 5. OMNI-TIMER ---
+        let timerInt;
+        function startCustomTimer() {
             clearInterval(timerInt);
-            timeLeft = min * 60;
-            updateTimer();
+            const min = parseInt(document.getElementById('custom-min').value) || 25;
+            let seconds = min * 60;
+            
             timerInt = setInterval(() => {
-                if(timeLeft > 0) { timeLeft--; updateTimer(); }
-                else { clearInterval(timerInt); alert("TIMER COMPLETE"); }
+                const m = Math.floor(seconds/60).toString().padStart(2,'0');
+                const s = (seconds%60).toString().padStart(2,'0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+                document.title = `${m}:${s} // FOCUS`;
+                
+                if(seconds > 0) seconds--;
+                else { clearInterval(timerInt); alert("SESSION COMPLETE"); }
             }, 1000);
         }
-        function updateTimer() {
-            const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
-            const s = (timeLeft%60).toString().padStart(2,'0');
-            document.getElementById('timer').innerText = `${m}:${s}`;
-        }
-
-        // --- 5. GEMINI INJECTION ---
-        function openModal() { document.getElementById('cmd-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('cmd-modal').style.display = 'none'; }
-        
-        document.addEventListener('keydown', e => { if((e.metaKey || e.ctrlKey) && e.key === 'k') openModal(); });
-
-        function injectJSON() {
-            try {
-                const data = JSON.parse(document.getElementById('json-input').value);
-                if(data.boss) state.boss = data.boss;
-                if(data.quests) state.quests = data.quests.map(q => ({
-                    ...q, 
-                    xp: q.rank === 's' ? 100 : (q.rank === 'a' ? 50 : 25),
-                    done: false 
-                }));
-                save(); closeModal();
-            } catch(e) { alert("INVALID JSON"); }
+        function resetTimer() {
+            clearInterval(timerInt);
+            document.getElementById('timer').innerText = "00:00";
+            document.title = "OS: EGOIST";
         }
 
         render();
